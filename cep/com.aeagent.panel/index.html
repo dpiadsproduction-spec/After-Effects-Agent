@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;" />
+  <title>AE Agent</title>
+  <link rel="stylesheet" href="css/panel.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>AE Agent</h1>
+        <p>Local After Effects copilot</p>
+      </div>
+    </div>
+    <div class="status">
+      <span id="statusDot" class="dot"></span>
+      <span id="statusText">Starting</span>
+    </div>
+  </header>
+
+  <main class="wrap chat-layout">
+    <section class="card chat-card">
+      <div id="chat" class="chat" aria-live="polite"></div>
+      <div class="chips">
+        <button class="chip" type="button" data-prompt="Create a white title that says Hello and fade it in">Title + fade</button>
+        <button class="chip" type="button" data-prompt="Add gaussian blur 25 to the selected layer">Blur</button>
+        <button class="chip" type="button" data-prompt="Make the selected layer 3D and orbit the camera around it">3D orbit</button>
+        <button class="chip" type="button" data-prompt="Fade the selected layer in and out">Fade in/out</button>
+        <button class="chip" type="button" data-prompt="اجعل حركة الكاميرا ناعمة وبطيئة في النهاية">تنعيم</button>
+        <button class="chip" type="button" data-prompt="حرك الكاميرا نحو الطبقة المحددة">نظر للكاميرا</button>
+      </div>
+      <label for="prompt">Ask After Effects to do something</label>
+      <textarea id="prompt" placeholder="Example: create a title, center it, fade it in, then orbit the camera"></textarea>
+      <div class="actions">
+        <button id="runBtn" class="primary" type="button">Send</button>
+        <button id="clearChatBtn" class="ghost" type="button">Clear chat</button>
+      </div>
+    </section>
+
+    <details class="card">
+      <summary>Local model</summary>
+      <div class="row">
+        <div>
+          <label for="apiType">API</label>
+          <select id="apiType">
+            <option value="ollama" selected>Ollama /api/chat</option>
+            <option value="openai">OpenAI-compatible</option>
+          </select>
+        </div>
+        <div>
+          <label for="model">Model</label>
+          <input id="model" value="llama3.1" />
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <label for="endpoint">Endpoint</label>
+        <input id="endpoint" value="http://localhost:11434" />
+      </div>
+      <div class="actions">
+        <button id="pingBtn" class="ghost" type="button">Test connection</button>
+        <button id="refreshBtn" class="ghost" type="button">Refresh AE context</button>
+      </div>
+      <p class="hint">Default Ollama: http://localhost:11434 — local only. If the model is down, the offline parser still runs common phrases.</p>
+    </details>
+
+    <details class="card">
+      <summary>Quick camera &amp; easing</summary>
+      <div class="actions">
+        <button id="btnEnsureCam" type="button">Ensure camera</button>
+        <button id="btnDolly" type="button">Dolly in</button>
+        <button id="btnPan" type="button">Pan</button>
+        <button id="btnOrbit" type="button">Orbit</button>
+        <button id="btnDollyZoom" type="button">Dolly zoom</button>
+        <button id="btnLookAt" type="button">Look at selected</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div>
+          <label for="easeMode">Mode</label>
+          <select id="easeMode">
+            <option value="easeInOut" selected>Ease In Out</option>
+            <option value="easeIn">Ease In (slow end)</option>
+            <option value="easeOut">Ease Out (slow start)</option>
+            <option value="cinematic">Cinematic</option>
+            <option value="autoBezier">Auto Bezier</option>
+            <option value="linear">Linear</option>
+            <option value="hold">Hold</option>
+          </select>
+        </div>
+        <div>
+          <label for="easeTarget">Target</label>
+          <select id="easeTarget">
+            <option value="selectedKeys" selected>Selected keyframes</option>
+            <option value="selectedLayers">Selected layers</option>
+            <option value="camera">Active camera</option>
+            <option value="allAnimated">All animated</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <label for="influence">Influence</label>
+        <div class="slider-row">
+          <input id="influence" type="range" min="1" max="100" value="80" />
+          <span id="influenceVal">80%</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="btnEase" class="primary" type="button">Apply easing</button>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary>Composition context</summary>
+      <pre id="contextBox" class="log">Waiting for After Effects...</pre>
+    </details>
+
+    <details class="card">
+      <summary>Debug log</summary>
+      <pre id="log" class="log"></pre>
+    </details>
+  </main>
+
+  <script src="js/CSInterface.js"></script>
+  <script src="js/host-bridge.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/parser.js"></script>
+  <script src="js/llm.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
