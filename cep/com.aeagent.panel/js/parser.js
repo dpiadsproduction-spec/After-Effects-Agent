@@ -29,6 +29,15 @@ var Parser = (function () {
         var angle = num(text, /(\-?\d+(?:\.\d+)?)\s*(deg|degree|degrees|درجة)/, 45);
         var quote = quoted(ar);
 
+        if (has(text, ["مساء الخير", "صباح الخير", "السلام عليكم", "hello", "hi ", "hey", "مرحبا", "أهلا", "اهلا", "يا صديقي"]) && text.length < 40) {
+            return {
+                ok: true,
+                reply: "مساء النور. قل لي ماذا أفعل في After Effects: عنوان، فييد، بلور، كاميرا، تنعيم...",
+                summary: "Greeting",
+                commands: []
+            };
+        }
+
         if (has(text, ["dolly zoom", "vertigo", "hitchcock", "دوللي زوم", "تأثير فيرتيجو"])) {
             return {
                 ok: true,

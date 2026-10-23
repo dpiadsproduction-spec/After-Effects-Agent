@@ -7,10 +7,37 @@ var LLM = (function () {
         return (typeof CATALOG !== "undefined" && CATALOG.SYSTEM) ? CATALOG.SYSTEM : "";
     }
 
+    function preferredModel(names) {
+        var rank = [
+            "qwen2.5-coder:14b",
+            "qwen2.5-coder:7b",
+            "qwen3-coder:30b",
+            "qwen3.5:9b",
+            "qwen3.5:27b",
+            "deepseek-coder-v2:16b",
+            "deepseek-coder-v2:latest",
+            "qwen3-vl:8b"
+        ];
+        var i;
+        var j;
+        for (i = 0; i < rank.length; i++) {
+            for (j = 0; j < names.length; j++) {
+                if (names[j] === rank[i]) return names[j];
+            }
+        }
+        for (j = 0; j < names.length; j++) {
+            if (names[j].indexOf("embed") === -1) return names[j];
+        }
+        return names[0] || "";
+    }
+
     function settings() {
+        var modelEl = document.getElementById("model");
+        var stored = "";
+        try { stored = localStorage.getItem("aeagent.model") || ""; } catch (e) {}
         return {
             endpoint: (document.getElementById("endpoint").value || "http://localhost:11434").replace(/\/+$/, ""),
-            model: document.getElementById("model").value || "llama3.1",
+            model: (modelEl && modelEl.value) || stored || "",
             api: document.getElementById("apiType").value || "ollama"
         };
     }
@@ -139,6 +166,9 @@ var LLM = (function () {
 
     function plan(user, context) {
         var s = settings();
+        if (!s.model) {
+            return Promise.reject(new Error("No Ollama model selected. Click Test connection."));
+        }
         var p = (s.api === "openai") ? chatOpenAI(user, context) : chatOllama(user, context);
         return p.then(function (result) {
             if (!result.reply && result.summary) result.reply = result.summary;
@@ -152,6 +182,7 @@ var LLM = (function () {
         plan: plan,
         extractJSON: extractJSON,
         clearHistory: clearHistory,
+        preferredModel: preferredModel,
         SYSTEM_PROMPT: systemPrompt()
     };
 }());

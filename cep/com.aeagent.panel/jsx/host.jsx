@@ -146,6 +146,9 @@ AEAgent.execute = function (jsonText) {
         app.beginUndoGroup("AE Motion Agent");
         var payload = jsonText;
         if (typeof jsonText === "string") {
+            if (/^[0-9a-fA-F]+$/.test(jsonText) && jsonText.length >= 8 && jsonText.length % 4 === 0) {
+                jsonText = AEAgent.fromHex(jsonText);
+            }
             payload = JSON.parse(jsonText);
         }
         var commands = payload.commands || payload;
@@ -186,4 +189,20 @@ function AEAgent_execute(jsonText) {
 
 function AEAgent_context() {
     return AEAgent.getContextJSON();
+}
+
+function AEAgent_ping() {
+    var payload = {
+        ok: true,
+        message: "host-ready",
+        data: {
+            version: AEAgent.VERSION || "2.0.1",
+            hasJSON: typeof JSON !== "undefined",
+            hasScene: typeof AEAgent.Scene !== "undefined"
+        }
+    };
+    if (typeof JSON !== "undefined" && JSON.stringify) {
+        return JSON.stringify(payload);
+    }
+    return '{"ok":true,"message":"host-ready","data":{}}';
 }

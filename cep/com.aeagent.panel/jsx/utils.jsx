@@ -4,7 +4,17 @@ if (typeof AEAgent === "undefined") {
     AEAgent = {};
 }
 
-AEAgent.VERSION = "2.0.0";
+AEAgent.VERSION = "2.0.1";
+
+AEAgent.fromHex = function (hex) {
+    var s = "";
+    var i;
+    hex = String(hex || "");
+    for (i = 0; i + 3 < hex.length; i += 4) {
+        s += String.fromCharCode(parseInt(hex.substr(i, 4), 16));
+    }
+    return s;
+};
 
 AEAgent.ok = function (data, message) {
     var payload = {

@@ -110,15 +110,46 @@
         });
     }
 
+    function fillModels(names) {
+        var sel = $("model");
+        if (!sel) return "";
+        var previous = sel.value;
+        try { if (!previous) previous = localStorage.getItem("aeagent.model") || ""; } catch (e0) {}
+        sel.innerHTML = "";
+        var i;
+        for (i = 0; i < names.length; i++) {
+            var opt = document.createElement("option");
+            opt.value = names[i];
+            opt.textContent = names[i];
+            sel.appendChild(opt);
+        }
+        var chosen = previous;
+        var found = false;
+        for (i = 0; i < names.length; i++) {
+            if (names[i] === chosen) found = true;
+        }
+        if (!found) chosen = LLM.preferredModel(names);
+        sel.value = chosen;
+        try { localStorage.setItem("aeagent.model", chosen); } catch (e1) {}
+        sel.onchange = function () {
+            try { localStorage.setItem("aeagent.model", sel.value); } catch (e2) {}
+        };
+        return chosen;
+    }
+
     function checkLLM() {
         LLM.ping().then(function (data) {
             var names = [];
             if (data && data.models) {
                 var i;
                 for (i = 0; i < data.models.length; i++) names.push(data.models[i].name);
+            } else if (data && data.data) {
+                var j;
+                for (j = 0; j < data.data.length; j++) names.push(data.data[j].id);
             }
-            setStatus("ok", names.length ? ("Ollama: " + names[0]) : "LLM connected");
-            log("Local LLM reachable" + (names.length ? (" — " + names.join(", ")) : ""), "ok");
+            var chosen = fillModels(names);
+            setStatus("ok", chosen ? ("Ollama: " + chosen) : "LLM connected");
+            log("Local LLM reachable" + (names.length ? (" — using " + chosen + " / " + names.join(", ")) : ""), "ok");
         }).catch(function (err) {
             setStatus("err", "LLM offline");
             log("Local LLM unreachable: " + err.message + ". Offline parser still works.", "err");
@@ -231,7 +262,12 @@
             log("Preview mode: CSInterface is missing. Install the CEP panel in After Effects.");
         } else {
             setStatus("ok", "After Effects");
-            refreshContext();
+            Host.pingHost().then(function () {
+                log("After Effects host ready.", "ok");
+                refreshContext();
+            }).catch(function (err) {
+                log("Host boot failed: " + err.message, "err");
+            });
         }
         checkLLM();
     }

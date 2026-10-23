@@ -154,7 +154,7 @@ ollama pull llama3.1
 curl http://localhost:11434/api/tags
 ```
 
-4. In the panel, leave Endpoint as `http://localhost:11434` and Model as `llama3.1` (or the name you pulled).
+4. Click **Test connection**. The panel lists models already on your machine and picks a coder model (qwen / deepseek). You do not need llama3.1.
 
 OpenAI-compatible local servers (LM Studio, llama.cpp) work if you switch API to OpenAI-compatible and point Endpoint at that server (the client calls `/v1/chat/completions`).
 

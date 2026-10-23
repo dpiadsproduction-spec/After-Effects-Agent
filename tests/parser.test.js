@@ -44,4 +44,8 @@ var fade = Parser.plan("Fade the selected layer in and out");
 assert(fade.commands[0].op === "layer.fade", "expected layer.fade");
 assert(fade.commands[0].type === "inOut", "expected inOut");
 
+var hi = Parser.plan("مساء الخير يا صديقي");
+assert(hi.ok, "greeting should parse");
+assert(hi.commands.length === 0, "greeting has no commands");
+
 console.log("parser tests passed");
